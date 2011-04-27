@@ -1,0 +1,52 @@
+Kickit
+======
+
+A runit replacement (sort of), written in Go.
+
+
+Compiling
+---------
+
+Dependencies:
+
+- A 'gc' Go compiler (not gccgo)
+- A GOROOT environment variable
+- goscons (https://github.com/alberts/goscons)
+
+Now run `scons` in the kickit root.
+
+
+Usage
+-----
+
+    kickit <service-directory>
+
+Where <service-directory> is a directory containing zero or more service roots,
+and each service root should contain a single executable called `run`.
+
+Services can then be started, stopped and restarted by interacting with Kickit
+over a Unix socket located at `<service-root>/.kcontrol` using the Kickit
+protocol (see docs/protocol.txt).
+
+Standard out of a service directorie's `run` file will be directed to
+`log/main/current` within the service root.
+
+
+In Comparison to Runit
+----------------------
+
+Kickit takes a lot of ideas from runit, but is different in a number of ways:
+
+- All interaction is done with a single process
+- Interaction takes place over a higher-level protocol
+- There is currently no 'scanning' of the service directory, either at
+  startup or any other time. All services must be explicitly started.
+  This may change.
+
+
+TODO
+----
+
+* Log rotating
+* Service status retrieval
+* Listing services (maybe)

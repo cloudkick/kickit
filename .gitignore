@@ -1,0 +1,8 @@
+pkg/*
+bin/*
+src/cmd/kickit/kickit
+.sconsign.dblite
+config.log
+*.8
+*.6
+*.a

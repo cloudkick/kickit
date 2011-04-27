@@ -1,0 +1,95 @@
+Kickit Protocol
+===============
+
+Overview
+--------
+
+Kickit uses a text based protocol a Unix socket. The socket is named
+'.kcontrol' and is created within the service directory passed to kickit on the
+command line.
+
+The protocol does not allow request pipelining (although you are free to buffer
+additional commands), and commands block until a response is available.
+
+
+Lines
+-----
+
+Kickit messages consist of one or more lines, each of which is terminated by
+a newline, optionally preceeded by a carriage return.
+
+
+Commands
+--------
+
+Kickit processes are controlled by commands. A command consists of:
+
+1. A command line of the form "VERB SERVICE". VERB can be one of:
+   
+   - START
+   - STOP
+   - RESTART
+
+   where capitalization is irrelevant. SERVICE can be the name of any service
+   whose directory lies within Kickit's service directory. The VERB and the
+   SERVICE are separated by a single space.
+
+2. Zero or more argument lines of the form "KEY=VALUE" where KEY and VALUE are
+   arbitrary strings, split around the first occurrance of an equals sign. Note
+   that while none of the existing verbs currently take advantage of arguments,
+   it is perfectly acceptable to pass unused arguments.
+
+3. An empty line to terminate the request.
+
+For example:
+
+    START foo\r\n
+    \r\n
+
+would attempt to start the service foo.
+
+
+Responses
+---------
+
+A response will be sent to every kickit command before parsing of the
+subsequent request is begun.
+
+A Kickit response consists of:
+
+1. A status line of the form "STATUS MESSAGE" where STATUS can be one of:
+
+   - SUCCESS
+   - ERROR
+
+   and MESSAGE is an arbitrary string providing a human-readable elaboration
+   on the STATUS. They are separated by the first space in the line.
+
+2. Zero or more data lines of the form "KEY=VALUE" where KEY and VALUE are
+   arbitrary strings, split around the first occurrance of an equals sign.
+   What data lines are included in a response depends on what VERB it was sent
+   in response to. Currently:
+
+   START, STOP, RESTART:
+   - include a 'pid' key where the value is an integer pid
+
+   STOP:
+   - includes a 'msg' key where the value is a system dependent string
+     describing the exit status of the application.
+   
+For example the command:
+
+    START foo\r\n
+    \r\n
+
+might result in:
+
+    SUCCESS Service started\r\n
+    pid=10220\r\n
+    \r\n
+
+or:
+
+    ERROR process: service root does not exist\r\n
+    \r\n
+
